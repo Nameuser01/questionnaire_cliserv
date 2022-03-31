@@ -2,6 +2,7 @@
 import socket
 import threading
 
+# CONNECTION INFORMATIONS
 host = "0.0.0.0"
 port = 55555
 
@@ -22,7 +23,7 @@ class ClientThread(threading.Thread):
         message = r.decode()
         print(f"Message transmit:\n{message}")
         f = open("reception.dat", "a")
-        f.write(f"{message}\n")
+        f.write(f"{self.ip};{message}")
         f.close()
         print("[-] Client déconnecté...")
 

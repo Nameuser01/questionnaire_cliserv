@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import os
 import time
 import codecs
@@ -9,9 +8,15 @@ from random import randint
 # from Cryptodome.Cipher import AES
 # from Cryptodome.Random import get_random_bytes
 
+# Informations client / serveur :
+hote = "127.0.0.1"
+port = 55555
+
+# Temps de réponse par question :
+tmps_rep = 10
+
 
 # Reading file to get questions/answers
-
 def Load_questions():
     label_titre.configure(text='\nQuestionnaire Global\n')
     f = codecs.open("data.txt", "r", "utf8")
@@ -29,7 +34,7 @@ def Load_questions():
     rep3 = Data_base[5:len(Data_base):8]
     rep4 = Data_base[6:len(Data_base):8]
     rep5 = Data_base[7:len(Data_base):8]
-    # Debeug section
+    # Control section :
     # print(f"themes:\n{themes}\n\nquestions:\n{questions}\n\n")
     # print(f"reponses:\n{reponses}\n\nrep1:\n{rep1}\n\n")
     # print(f"rep2:\n{rep2}\n\nrep3:\n{rep3}\n\n")
@@ -38,23 +43,22 @@ def Load_questions():
 
 
 def work_func():
-    global valider, bonnes, score, SS, deja
+    global valider, bonnes, score, deja
     deja = []
     bonnes = 0
     score = 0
-    SS = 0
     label.configure(text="Combien voulez vous de questions ?", fg="black")
     labelScore.configure(text=f"Votre score: {score} pts")
     champs.grid(column=0, row=2)  # ,sticky="W")
     valider = Button(root,text="ENTRER",command=nb_questions)
     valider.grid(column=1,row=2,sticky="E")
     DB1.configure(fg='white',bg='white',relief=RAISED,state=DISABLED)
+    DB1.destroy()
 
 
 # Nombre de questions à poser
 def nb_questions():
     global nb_Questions, valider
-    
     gut = False
     while (gut == False): # Is that loop useful ?
         nb_Questions = int(champs.get())
@@ -69,23 +73,32 @@ def nb_questions():
     quizz()
 
 
+# Compteur pour chaque question
 def countDown(a):
+    # global stop
+    # if('stop' in locals()):
+    #     pass
+    # else:
+    #     stop = ""
     tRestant = a
     Compteur.config(bg='white')
     Compteur.config(height=3, font=('times', 14, 'bold'))
-    # get_nbr_questions = champs.get()
-    #champs.delete(0, END)
-    #champs.destroy()
+    champs.destroy()
     while tRestant > 0:
+        # if (stop == " "):
+        #     tRestant = 0
+        # else:
+        #     pass
+        # stop = ""
         Compteur["text"] = round(tRestant, 0)
         Compteur.update()
         time.sleep(0.01)
         tRestant -= 0.01
-    if tRestant == 0:
-        Compteur.configure(text='0')
-        check()
+    
+    check()  # Cas ou le temps de réponse est dépassé
+    
 
-
+# Quizz running
 def quizz():
     global q_selector, cb1, cb2, cb3, cb4, cb5, qa, qb, qc, qd, qe
     # Définition et globalisation des 5 variables qui vont contenir les réponses (booléens)
@@ -94,13 +107,12 @@ def quizz():
     cb3 = IntVar()
     cb4 = IntVar()
     cb5 = IntVar()
-    # labelRepSaisie.configure(text="test")
     if nb_Questions < bonnes + 5:
         nbQuestAffich = nb_Questions
     else:
         nbQuestAffich = bonnes + 5
 
-    if(len(deja) < len(questions)):  # On vérifie qu'il reste des questions qu'on a pas encore posé
+    if(len(deja) < nb_Questions):  # On vérifie qu'il reste des questions qu'on a pas encore posé
         q_selector = randint(0, len(questions) - 1)
         while q_selector in deja:  # On vérifie que la question n'est pas déjà tombée
             q_selector = randint(0, len(questions) - 1)
@@ -110,23 +122,40 @@ def quizz():
         qc = Checkbutton(root, text=f"{rep3[q_selector]}", onvalue=1, offvalue=0, variable=cb3)
         qd = Checkbutton(root, text=f"{rep4[q_selector]}", onvalue=1, offvalue=0, variable=cb4)
         qe = Checkbutton(root, text=f"{rep5[q_selector]}", onvalue=1, offvalue=0, variable=cb5)
-        label.configure(text=f"{questions[q_selector]} ?", fg="black")
-        qa.grid()
-        qb.grid()
-        qc.grid()
-        qd.grid()
-        qe.grid()
+        label.configure(text=f"{questions[q_selector]}", fg="black")
+        if (rep1[q_selector]):
+            qa.grid()
+        else:
+            pass
+        if(rep2[q_selector]):
+            qb.grid()
+        else:
+            pass
+        if(rep3[q_selector]):
+            qc.grid()
+        else:
+            pass
+        if(rep4[q_selector]):
+            qd.grid()
+        else:
+            pass
+        if(rep5[q_selector]):
+            qe.grid()
+        else:
+            pass
         valider.configure(text="Validation réponse", state=ACTIVE, command=check)
-        countDown(25)
+        countDown(tmps_rep)
     else:
         Compteur.configure(text="")
         label.configure(text=f"Vous avez eu {bonnes} bonnes réponses sur {nbQuestAffich} questions !", fg="black")
-        DB1.configure(fg='black', bg='grey', state=ACTIVE)
         valider.configure(text='ENTRER', state=DISABLED)
         
 
+# Checking for score update
 def check():
-    global reponse, deja, nb_Questions, score, SS, bonnes
+    global reponse, deja, nb_Questions, score, bonnes
+    # stop = " "
+    Compteur.configure(text='0')
     qa.destroy()
     qb.destroy()
     qc.destroy()
@@ -157,14 +186,16 @@ def check():
         user_rep_cmp.append("5")
     else:
         pass
-    print(f"Comparing:\n\ngood = {good_rep_cmp}\nuser = {user_rep_cmp}")
     # Comparaison toute simple des deux listes
     if (user_rep_cmp == good_rep_cmp):
         score += 5
+        bonnes += 1
         label.configure(text="BRAVO!", fg="green")
+        registration(themes[q_selector], questions[q_selector], "correct")
     else:
         score -= 2
         label.configure(text="Mauvaise réponse!", fg="red")
+        registration(themes[q_selector], questions[q_selector], "erreur")
     if (score < 0):
         score = 0
     else:
@@ -172,18 +203,19 @@ def check():
     labelScore.configure(text=f"Votre score: {score} pts")
     valider.configure(text="Question Suivante", command=quizz)
 
+
 # Enregistrement des réponses questions de la sessions dans un fichier
-def registration(question, user_answer):
+def registration(theme, question, result):
     fichier = open("registry.dat", "a")
-    fichier.write(f"{question},{user_answer}\n")
+    fichier.write(f"{theme} ; {question} ; {result}\n")
     fichier.close()
     
 
 # Affichage des règles du Quizz
-
 def read_rules():
     ofi = codecs.open("rules.txt", "r", "utf8")
     t = ofi.read()
+    ofi.close()
     reg = Tk()
     reg.title("Regles du Quizz")
     lab = Label(reg, text = t, bg = "white", fg = "black")
@@ -194,12 +226,10 @@ def read_rules():
     
     
 # Travail sur Tkinter (GUI)
-
 root=Tk()
 root.title("Projet Python !")
 root.geometry("900x480")
 root.configure(bg="white")
-
 
 label_titre = Label(root, text="\nQuiz informatique\n", bg="white", fg="black")
 label_titre.grid(column=0, row=0, sticky="NW")
@@ -239,17 +269,14 @@ def do_encrypt(message):
     return message
 
 
-hote = "127.0.0.1"
-port = 55555
-    
 socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket.connect((hote, port))
 print(f"[+] Connexion sur le port {port}")
 readfile = codecs.open("registry.dat", "r", "utf8")
 message = readfile.read()
 cyphered_message = do_encrypt(message)
-print(f"Le message a envoyer est le suivant\n{cyphered_message}")
-print(f"Cyphered message:\n{cyphered_message}")
+# print(f"Le message a envoyer est le suivant\n{cyphered_message}")
+# print(f"Cyphered message:\n{cyphered_message}")
 socket.send(cyphered_message.encode())
 print("[-] Fin de connexion")
 socket.close()
