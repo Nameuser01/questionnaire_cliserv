@@ -5,7 +5,6 @@ from tkinter import *
 from random import randint
 import time
 import codecs
-import requests
 import socket
 
 
@@ -16,8 +15,8 @@ def Load_db1():
     f = codecs.open("data.txt", "r", "utf8")
     Data_base = f.read()
     f.close()
-    Data_base = Data_base.replace("\n",",")
-    Data_base = Data_base.split(",")
+    Data_base = Data_base.replace("\n",";")
+    Data_base = Data_base.split(";")
     Questions = Data_base[0:len(Data_base):2]
     Reponses = Data_base[1:len(Data_base):2]
     i = 0
@@ -182,32 +181,12 @@ def registration(question, user_answer):
     fichier = open("registry.dat", "a")
     fichier.write(f"{question},{user_answer}\n")
     fichier.close()
-
-
-def send_data():
-    # [ 1 ]envoi du fichier vers le serveur
-    hote = "localhost"
-    port = 22255
-
-    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket.connect((hote, port))
-    print(f"Connection on {port}")
-    message = "Transmission client -> serveur"
-    socket.send(message.encode())
-
-    print("Close"à
-    socket.close()
-
-    # [ 2 ] Nettoyage du fichier après envoi
-    file = open("registry.dat","w")
-    file.close()
-
     
 
 # Affichage des règles du Quizz
 
 def read_rules():
-    ofi = codecs.open("rules.txt", "r", "utf-8")
+    ofi = codecs.open("rules.txt", "r", "utf8")
     t = ofi.read()
     reg = Tk()
     reg.title("Regles du Quizz")
@@ -250,4 +229,19 @@ Compteur.grid(column=1, row=1, sticky="NE")
 
 root.mainloop()
 
-send_data()
+hote = "10.0.55.1"
+port = 55555
+    
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket.connect((hote, port))
+print(f"[+] Connexion sur le port {port}")
+readfile = codecs.open("registry.dat", "r", "utf8")
+message = readfile.read()
+print(f"Le message a envoyer est le suivant\n{message}")
+socket.send(message.encode())
+print("[-] Fin de connexion")
+socket.close()
+
+# Nettoyage du fichier temporaire
+file = open("registry.dat","w")
+file.close()
