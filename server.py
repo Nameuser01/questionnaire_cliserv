@@ -22,8 +22,8 @@ class ClientThread(threading.Thread):
         r = self.clientsocket.recv(2048)
         message = r.decode()
         print(f"Message transmit:\n{message}")
-        f = open("reception.dat", "a")
-        f.write(f"{self.ip};{message}")
+        f = open(f"{self.ip}.dat", "a")
+        f.write(f"{message}")
         f.close()
         print("[-] Client déconnecté...")
 

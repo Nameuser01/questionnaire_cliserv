@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 
-import time
 import matplotlib.pyplot as plt
 from collections import Counter
-import random
-import string
-import re
-import sys
-from tkinter import *
-from random import randint
 import codecs
-import socket
 
 # Targetting ip
 target_ip = "127.0.0.1"
@@ -24,24 +16,54 @@ Data_base = Data_base.split(";")
 theme = Data_base[0:len(Data_base):3]
 question = Data_base[1:len(Data_base):3]
 result = Data_base[2:len(Data_base):3]
-theme.remove('')
-print(theme)
+if (theme[len(theme) - 1] == ''):  # Supprimer la dernière ligne si besoin (évite les bugs)
+	theme.remove('')
+else:
+	pass
 
 cnt = Counter()
+cnt_tot = Counter()
 i = 0
 for good in theme:
-	cnt[good] += 1
+	if (result[i] == "correct"):
+		cnt[good] += 1
+	else:
+		pass
 	i += 1
-	print(cnt)
 
-themes = []
+m = 0
+for good in theme:
+	cnt_tot[good] += 1
+	m += 1
+
+themes_0 = []
 nbr_g_rep = []
-i = 0
-for k, v in sorted(cnt.items(), key=lambda item: item[1]):
-	themes.append(k)
-	nbr_g_rep.append(v)
+themes_1 = []
+nbr_tot_rep = []
 
-plt.title("Pourcentage de bonnes réponses par matière")
-plt.bar(themes, nbr_g_rep)
-plt.ylabel("Profil de la personne")
+i = 0
+for k, v in sorted(cnt_tot.items(), key=lambda item: item[1]):
+	themes_0.append(k)
+	nbr_tot_rep.append(v)
+
+i = 0
+for j, x in sorted(cnt.items(), key=lambda item: item[1]):
+	themes_1.append(j)
+	nbr_g_rep.append(x)
+
+themes_0.reverse()
+nbr_g_rep.reverse()
+themes_1.reverse()
+nbr_tot_rep.reverse()
+
+pourcentage = []
+compteur = -1
+for i in range(len(themes_0)):
+	compteur += 1
+	temp = (100 * nbr_g_rep[compteur] / nbr_tot_rep[compteur])
+	pourcentage.append(temp)
+
+plt.title("Profil d'un utilisateur")
+plt.bar(themes_0, pourcentage, width=0.2, align='center')
+plt.ylabel("Pourcentage de bonne réponses")
 plt.show()

@@ -5,8 +5,6 @@ import codecs
 import socket
 from tkinter import *
 from random import randint
-# from Cryptodome.Cipher import AES
-# from Cryptodome.Random import get_random_bytes
 
 # Informations client / serveur :
 hote = "127.0.0.1"
@@ -47,49 +45,36 @@ def work_func():
     deja = []
     bonnes = 0
     score = 0
-    label.configure(text="Combien voulez vous de questions ?", fg="black")
+    label.configure(text="Combien voulez vous de questions ?", fg="#d0d3d4")
     labelScore.configure(text=f"Votre score: {score} pts")
-    champs.grid(column=0, row=2)  # ,sticky="W")
-    valider = Button(root,text="ENTRER",command=nb_questions)
-    valider.grid(column=1,row=2,sticky="E")
-    DB1.configure(fg='white',bg='white',relief=RAISED,state=DISABLED)
+    champs.grid(column=0, row=2, sticky="W")  # On affiche le champs d'entrée du nombre de questions
+    valider = Button(root, text="ENTRER", command=nb_questions)
+    valider.grid(column=1, row=2, sticky="E")
+    DB1.configure(fg='white', bg='white', relief=RAISED, state=DISABLED)
     DB1.destroy()
 
 
 # Nombre de questions à poser
 def nb_questions():
     global nb_Questions, valider
-    gut = False
-    while (gut == False): # Is that loop useful ?
-        nb_Questions = int(champs.get())
-        if (nb_Questions <= len(questions) and nb_Questions > 0):
-            gut = True
-        else:
-            label.configure(text=f"Le nombre max de questions est de : {len(questions)}")
-            valider.configure(state=DISABLED)
-            label.update()
-            time.sleep(2)
-            root.destroy()
-    quizz()
+    nb_Questions = int(champs.get())
+    if (nb_Questions <= len(questions) and nb_Questions > 0):
+        quizz()
+    else:
+        label.configure(text=f"Le nombre max de questions est de : {len(questions)}")
+        valider.configure(state=DISABLED)
+        label.update()
+        time.sleep(2)
+        root.destroy()
 
 
 # Compteur pour chaque question
 def countDown(a):
-    # global stop
-    # if('stop' in locals()):
-    #     pass
-    # else:
-    #     stop = ""
     tRestant = a
-    Compteur.config(bg='white')
+    Compteur.config(bg='#6592a6')
     Compteur.config(height=3, font=('times', 14, 'bold'))
     champs.destroy()
     while tRestant > 0:
-        # if (stop == " "):
-        #     tRestant = 0
-        # else:
-        #     pass
-        # stop = ""
         Compteur["text"] = round(tRestant, 0)
         Compteur.update()
         time.sleep(0.01)
@@ -122,7 +107,7 @@ def quizz():
         qc = Checkbutton(root, text=f"{rep3[q_selector]}", onvalue=1, offvalue=0, variable=cb3)
         qd = Checkbutton(root, text=f"{rep4[q_selector]}", onvalue=1, offvalue=0, variable=cb4)
         qe = Checkbutton(root, text=f"{rep5[q_selector]}", onvalue=1, offvalue=0, variable=cb5)
-        label.configure(text=f"{questions[q_selector]}", fg="black")
+        label.configure(text=f"{questions[q_selector]}", fg="#d0d3d4")
         if (rep1[q_selector]):
             qa.grid()
         else:
@@ -147,7 +132,7 @@ def quizz():
         countDown(tmps_rep)
     else:
         Compteur.configure(text="")
-        label.configure(text=f"Vous avez eu {bonnes} bonnes réponses sur {nbQuestAffich} questions !", fg="black")
+        label.configure(text=f"Vous avez eu {bonnes} bonnes réponses sur {nbQuestAffich} questions !", fg="#d0d3d4")
         valider.configure(text='ENTRER', state=DISABLED)
         
 
@@ -207,7 +192,7 @@ def check():
 # Enregistrement des réponses questions de la sessions dans un fichier
 def registration(theme, question, result):
     fichier = open("registry.dat", "a")
-    fichier.write(f"{theme} ; {question} ; {result}\n")
+    fichier.write(f"{theme};{question};{result}\n")
     fichier.close()
     
 
@@ -218,9 +203,9 @@ def read_rules():
     ofi.close()
     reg = Tk()
     reg.title("Regles du Quizz")
-    lab = Label(reg, text = t, bg = "white", fg = "black")
+    lab = Label(reg, text=t, bg="#2e4053", fg="#d0d3d4")
     lab.pack()
-    close = Button(reg, text="Fermer", command=reg.destroy)
+    close = Button(reg, text="Quitter", command=reg.destroy)
     close.pack(side=BOTTOM)
     reg.mainloop()
     
@@ -229,18 +214,19 @@ def read_rules():
 root=Tk()
 root.title("Projet Python !")
 root.geometry("900x480")
-root.configure(bg="white")
+root.configure(bg="#2f3640")
 
-label_titre = Label(root, text="\nQuiz informatique\n", bg="white", fg="black")
+label_titre = Label(root, text="\nProjet Python\n", bg="#2f3640", fg="#d0d3d4")
 label_titre.grid(column=0, row=0, sticky="NW")
-label = Label(root, bg="white")
+label = Label(root, bg="#2f3640", fg="#d0d3d4")
 label.grid(column=0, row=1, sticky="W")
-labelRepSaisie = Label(root, bg="white")
+labelRepSaisie = Label(root, bg="#2f3640", fg="#d0d3d4")
 labelRepSaisie.grid(column=0, row=3, sticky="W")
-labelScore = Label(root, bg="white", fg='black')
+labelScore = Label(root, bg="#2f3640", fg="#d0d3d4")
 labelScore.grid(column=2, row=5, sticky="NW")
 
 champs = Entry(root)
+# champs.grid(column=0, row=2, sticky="W")
 
 bb = Button(root, text="Règles Jeu", command=read_rules)
 bb.grid(column=3, row=0)  # , sticky="W")
@@ -280,6 +266,7 @@ cyphered_message = do_encrypt(message)
 socket.send(cyphered_message.encode())
 print("[-] Fin de connexion")
 socket.close()
+
 
 # Nettoyage du fichier temporaire
 os.remove("registry.dat")
