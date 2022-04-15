@@ -5,6 +5,7 @@ import codecs
 import socket
 from tkinter import *
 from random import randint
+from simplecrypt import encrypt
 
 # Informations client / serveur :
 hote = "127.0.0.1"
@@ -22,7 +23,6 @@ def Load_questions():
     f.close()
     Data_base = Data_base.replace("\n",";")
     Data_base = Data_base.split(";")
-    # Data logging
     global themes, questions, reponses, rep1, rep2, rep3, rep4, rep5
     themes = Data_base[0:len(Data_base):8]
     questions = Data_base[1:len(Data_base):8]
@@ -32,11 +32,6 @@ def Load_questions():
     rep3 = Data_base[5:len(Data_base):8]
     rep4 = Data_base[6:len(Data_base):8]
     rep5 = Data_base[7:len(Data_base):8]
-    # Control section :
-    # print(f"themes:\n{themes}\n\nquestions:\n{questions}\n\n")
-    # print(f"reponses:\n{reponses}\n\nrep1:\n{rep1}\n\n")
-    # print(f"rep2:\n{rep2}\n\nrep3:\n{rep3}\n\n")
-    # print(f"rep4:\n{rep4}\n\nrep5:\n{rep5}\n\n")
     work_func()
 
 
@@ -71,7 +66,7 @@ def nb_questions():
 # Compteur pour chaque question
 def countDown(a):
     tRestant = a
-    Compteur.config(bg='#6592a6')
+    Compteur.config(bg='#2f3640', fg="white")
     Compteur.config(height=3, font=('times', 14, 'bold'))
     champs.destroy()
     while tRestant > 0:
@@ -192,7 +187,7 @@ def check():
 # Enregistrement des réponses questions de la sessions dans un fichier
 def registration(theme, question, result):
     fichier = open("registry.dat", "a")
-    fichier.write(f"{theme};{question};{result}\n")
+    fichier.write(f"{theme};{result}\n")
     fichier.close()
     
 
@@ -244,29 +239,20 @@ root.mainloop()
 
 
 def do_encrypt(message):
-    # key = get_random_bytes(16)
-    # cipher = AES.new(key, AES.MODE_EAX)
-    # ciphertext, tag = cipher.encrypt_and_digest(message)
-    
-    # # enregistrement dans un fichier du chiffre
-    # file_out = open("encryptfile.bin", "wb")
-    # [ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
-    # file_out.close()
+    keypass = "secretpassword"
+    message = encrypt(keypass, message)
     return message
-
 
 socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket.connect((hote, port))
+os.system("clear")
 print(f"[+] Connexion sur le port {port}")
 readfile = codecs.open("registry.dat", "r", "utf8")
 message = readfile.read()
 cyphered_message = do_encrypt(message)
-# print(f"Le message a envoyer est le suivant\n{cyphered_message}")
-# print(f"Cyphered message:\n{cyphered_message}")
-socket.send(cyphered_message.encode())
+socket.send(cyphered_message)
 print("[-] Fin de connexion")
 socket.close()
-
 
 # Nettoyage du fichier temporaire
 os.remove("registry.dat")

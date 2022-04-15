@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import threading
+from simplecrypt import decrypt
 
 # CONNECTION INFORMATIONS
 host = "0.0.0.0"
@@ -20,10 +21,13 @@ class ClientThread(threading.Thread):
     def run(self):
         print(f"Connexion de {self.ip} avec le port {self.port}")
         r = self.clientsocket.recv(2048)
-        message = r.decode()
-        print(f"Message transmit:\n{message}")
+        message = r
+        result = decrypt("secretpassword", message)
+        print(result)
+        result = result.decode("utf-8")
+        print(result)
         f = open(f"{self.ip}.dat", "a")
-        f.write(f"{message}")
+        f.write(f"{result}")
         f.close()
         print("[-] Client déconnecté...")
 

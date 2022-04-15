@@ -13,10 +13,9 @@ f.close()
 
 Data_base = cont.replace("\n",";")
 Data_base = Data_base.split(";")
-theme = Data_base[0:len(Data_base):3]
-question = Data_base[1:len(Data_base):3]
-result = Data_base[2:len(Data_base):3]
-if (theme[len(theme) - 1] == ''):  # Supprimer la dernière ligne si besoin (évite les bugs)
+theme = Data_base[0:len(Data_base):2]
+result = Data_base[1:len(Data_base):2]
+if (theme[len(theme) - 1] == ''):  # Supprimer la dernière valeur si besoin
 	theme.remove('')
 else:
 	pass
@@ -56,6 +55,11 @@ nbr_g_rep.reverse()
 themes_1.reverse()
 nbr_tot_rep.reverse()
 
+diff = len(themes_0) - len(themes_1)
+if (diff >= 1):
+	for i in range(diff):
+		nbr_g_rep.append(0)
+
 pourcentage = []
 compteur = -1
 for i in range(len(themes_0)):
@@ -63,7 +67,8 @@ for i in range(len(themes_0)):
 	temp = (100 * nbr_g_rep[compteur] / nbr_tot_rep[compteur])
 	pourcentage.append(temp)
 
-plt.title("Profil d'un utilisateur")
+plt.title(f"Profil de l'utilisateur {target_ip}")
 plt.bar(themes_0, pourcentage, width=0.2, align='center')
+plt.grid(True)
 plt.ylabel("Pourcentage de bonne réponses")
 plt.show()
